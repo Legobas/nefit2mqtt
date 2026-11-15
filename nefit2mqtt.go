@@ -11,7 +11,6 @@ import (
 
 	"github.com/Legobas/nefit2mqtt/config"
 	"github.com/Legobas/nefit2mqtt/mqtt"
-	"github.com/Legobas/nefit2mqtt/rclone"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -31,7 +30,6 @@ var (
 	Version  string = "dev"
 	conf     config.Config
 	mqttConn *mqtt.MqttConnection
-	rc       *rclone.RcloneSettings
 )
 
 func init() {
@@ -61,9 +59,6 @@ func init() {
 
 func receive(topic string, message string) {
 	responseTopic := RESPONSE_TOPIC
-	if conf.Rclone.ResponseTopic != "" {
-		responseTopic = conf.Rclone.ResponseTopic
-	}
 
 	if topic != STATUS_TOPIC && topic != responseTopic {
 		log.Trace().Msgf("MQTT Topic: %s", topic)
@@ -74,16 +69,6 @@ func receive(topic string, message string) {
 		json := strings.TrimSpace(message)
 		if len(json) == 0 {
 			json = "{}"
-		}
-
-		if rc != nil {
-			response, err := rc.SendToRclone(command, json)
-			if err != nil {
-				log.Fatal().Err(err)
-				return
-			}
-
-			mqttConn.Publish(responseTopic, response)
 		}
 	}
 }
@@ -97,17 +82,6 @@ func main() {
 	}
 
 	log.Debug().Msgf("Config is %v", conf)
-
-	rc, err = rclone.New(conf.Rclone.Username, conf.Rclone.Password)
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-
-	if rc.RcloneOnline() {
-		log.Debug().Msg("Rclone is ready")
-	} else {
-		log.Warn().Msg("Rclone could not be found!")
-	}
 
 	var mqttProperties mqtt.MqttProperties
 	mqttProperties.ClientId = fmt.Sprintf("%s_%s", appName, fmt.Sprintf("%d", time.Now().UnixMicro()))
