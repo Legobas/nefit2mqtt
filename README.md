@@ -5,7 +5,7 @@
 
 **Nefit2MQTT** is a bridge between **Nefit Easy** thermostats and MQTT-based home-automation systems. It allows you to monitor and control your thermostat from Home Assistant, Domoticz, Node-RED, or any other MQTT platform.
 
-Under the hood, Nefit2MQTT uses the [Nefit Easy HTTP Server](https://github.com/robertklep/nefit-easy-http-server) created by Robert Klep.
+Under the hood, Nefit2MQTT uses the [Nefit Easy HTTP Server](https://github.com/robertklep/nefit-easy-http-server) created by Robert Klep. A few patches are applied to use it with a recent LTS version of Node.
 
 ---
 
